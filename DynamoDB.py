@@ -20,16 +20,24 @@ class DynamoDB:
                 "status": "ERROR",
                 "msg": e
             }
+    
+    def get_item(self, **kwargs):
+        try:
+            response = self.table.get_item(Key=kwargs)
+            return {
+                "status": "OK",
+                "item": response["Item"]
+            }
+        except Exception as e:
+            return {
+                "status": "ERROR",
+                "msg": e
+            }
+
+
 
 if __name__ == "__main__":
     d = DynamoDB('flights')
-    item = {
-        "id": "AA962",
-        "aircraft_prefix": "N930NN",
-        "pilot_name": "Deep, Jhon",
-        "max_load": "136.9",
-        "route": "GRU-DFW"
-    }
-    r = d.create_item(item)
-    print(r)
+    i = d.get_item(id='AA962')
+    print(i)
 
