@@ -33,11 +33,24 @@ class DynamoDB:
                 "status": "ERROR",
                 "msg": e
             }
-
+    
+    def get_all_items(self):
+        try:
+            response = self.table.scan()
+            items = response['Items']
+            return {
+                "status": "OK",
+                "items": items
+            }
+        except Exception as e:
+            return {
+                "status": "ERROR",
+                "msg": e
+            }
 
 
 if __name__ == "__main__":
     d = DynamoDB('flights')
-    i = d.get_item(id='AA962')
+    i = d.get_all_items()
     print(i)
 
