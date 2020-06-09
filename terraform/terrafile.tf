@@ -89,3 +89,15 @@ resource "aws_iam_role_policy_attachment" "role-policy-attach" {
   policy_arn = aws_iam_policy.policy.arn
   depends_on = [aws_iam_role.role, aws_iam_policy.policy]
 }
+
+resource "aws_lambda_function" "lambda" {
+    filename = "../dynamodb_create_item.py.zip"
+    function_name = "dynamodb_create_item"
+    role = aws_iam_role.role.arn
+    handler = "dynamodb_create_item.lambda_handler"
+
+    runtime = "python3.8"
+  
+}
+
+
