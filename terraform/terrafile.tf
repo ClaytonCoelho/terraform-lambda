@@ -1,38 +1,23 @@
 resource "aws_dynamodb_table" "dynamodb-table" {
     name           = var.table_name
     hash_key       = "id"
+    billing_mode   = "PROVISIONED"
+    read_capacity  = 20
+    write_capacity = 20
 
     attribute {
         name = "id"
         type = "S"
     }
-
-    attribute {
-        name = "aircraft_prefix"
-        type = "S"
-    }
-
-    attribute {
-        name = "pilot_name"
-        type = "S"
-    }
-
-    attribute {
-        name = "max_load"
-        type = "S"
-    }
-
-    attribute {
-        name = "route"
-        type = "S"
-    }
-
-resource "aws_iam_role" "iam_role_for_lambda" {
-    name = "AWSRoleLambdaDynamoDBTable-${var.table_name}"
-    description = "Role that allows reading and writing from AWS Lambda to the AWS DynamoDB table ${var.table_name}."
+}
 
 
-    assume_role_policy = <<EOF
+resource "aws_iam_policy" "policy" {
+  name        = "AWSPolicyLambdaDynamoDBTable-${var.table_name}"
+  path        = "/"
+  depends_on = [aws_dynamodb_table.dynamodb-table]
+
+  policy = <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -76,4 +61,31 @@ resource "aws_iam_role" "iam_role_for_lambda" {
 EOF
 }
 
+resource "aws_iam_role" "role" {
+    name = "AWSRoleLambdaDynamoDBTable-${var.table_name}"
+    description = "Role that allows reading and writing from AWS Lambda to the AWS DynamoDB table ${var.table_name}."
+    depends_on = [aws_dynamodb_table.dynamodb-table]
 
+
+    assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "dynamodb.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "role-policy-attach" {
+  role       = aws_iam_role.role.name
+  policy_arn = aws_iam_policy.policy.arn
+  depends_on = [aws_iam_role.role, aws_iam_policy.policy]
+}
