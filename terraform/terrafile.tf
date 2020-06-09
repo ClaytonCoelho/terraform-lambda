@@ -1,3 +1,11 @@
+data "archive_file" "init" {
+  type        = "zip"
+
+  for_each = toset(var.lambda_function)
+  source_file = "../lambda_function/${each.value}.py"
+  output_path = "../lambda_function/${each.value}.py.zip"
+}
+
 resource "aws_dynamodb_table" "dynamodb-table" {
     name           = var.table_name
     hash_key       = "id"
@@ -91,10 +99,11 @@ resource "aws_iam_role_policy_attachment" "role-policy-attach" {
 }
 
 resource "aws_lambda_function" "lambda" {
-    filename = "../dynamodb_create_item.py.zip"
-    function_name = "dynamodb_create_item"
+    for_each = toset(var.lambda_function)
+    filename = "../lambda_function/${each.value}.py.zip"
+    function_name = "${each.value}"
     role = aws_iam_role.role.arn
-    handler = "dynamodb_create_item.lambda_handler"
+    handler = "${each.value}.lambda_handler"
 
     runtime = "python3.8"
   
