@@ -35,3 +35,4 @@ terraform.rc
 # Custom
 *.zip
 plano
+*.drawio
