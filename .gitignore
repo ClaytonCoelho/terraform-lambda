@@ -36,3 +36,6 @@ terraform.rc
 *.zip
 plano
 *.drawio
+Makefile
+tfplan
+.env
